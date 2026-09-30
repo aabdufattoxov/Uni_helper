@@ -12,6 +12,5 @@ def test_database_initialization(tmp_path):
     
     assert os.path.exists(db_file)
     
-    session = db_manager.get_session()
-    assert session is not None
-    session.close()
+    with db_manager.get_session() as session:
+        assert session is not None

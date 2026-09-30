@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from contextlib import contextmanager
 
 # Default SQLite database path
 DEFAULT_DB_URL = f"sqlite:///{os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'uni_helper.db')}"
@@ -16,6 +17,11 @@ class DatabaseManager:
         """Creates all tables."""
         Base.metadata.create_all(bind=self.engine)
 
+    @contextmanager
     def get_session(self):
-        """Returns a new database session."""
-        return self.SessionLocal()
+        """Returns a new database session context."""
+        session = self.SessionLocal()
+        try:
+            yield session
+        finally:
+            session.close()
