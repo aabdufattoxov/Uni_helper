@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
+from sqlalchemy import inspect
 
 from uni_helper.infrastructure.database.connection import DatabaseManager
 
@@ -15,6 +16,7 @@ def test_database_initialization_uses_user_data_directory(tmp_path, monkeypatch)
 
     assert db_manager.engine.url.database == str(db_file)
     assert db_file.exists()
+    assert "subjects" in inspect(db_manager.engine).get_table_names()
     db_manager.engine.dispose()
 
 

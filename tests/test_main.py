@@ -39,6 +39,7 @@ def test_successful_startup_shows_window_and_returns_exit_code(monkeypatch):
     app = Mock()
     app.exec.return_value = 0
     database_manager = Mock()
+    repository = Mock()
     window = Mock()
 
     monkeypatch.setattr(application, "QApplication", Mock(return_value=app))
@@ -47,12 +48,17 @@ def test_successful_startup_shows_window_and_returns_exit_code(monkeypatch):
         "DatabaseManager",
         Mock(return_value=database_manager),
     )
-    monkeypatch.setattr(application, "MainWindow", Mock(return_value=window))
+    repository_factory = Mock(return_value=repository)
+    window_factory = Mock(return_value=window)
+    monkeypatch.setattr(application, "SqlAlchemySubjectRepository", repository_factory)
+    monkeypatch.setattr(application, "MainWindow", window_factory)
 
     result = application.main()
 
     assert result == 0
     database_manager.init_db.assert_called_once()
+    repository_factory.assert_called_once_with(database_manager)
     window.show.assert_called_once()
+    assert isinstance(window_factory.call_args.args[0], application.SubjectService)
     app.exec.assert_called_once()
     database_manager.close.assert_called_once()

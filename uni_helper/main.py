@@ -2,7 +2,11 @@ import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from sqlalchemy.exc import SQLAlchemyError
 
+from uni_helper.application.subject_service import SubjectService
 from uni_helper.infrastructure.database.connection import DatabaseManager
+from uni_helper.infrastructure.database.subject_repository import (
+    SqlAlchemySubjectRepository,
+)
 from uni_helper.presentation.main_window import MainWindow
 
 
@@ -13,6 +17,7 @@ def main() -> int:
     try:
         db_manager = DatabaseManager()
         db_manager.init_db()
+        subject_service = SubjectService(SqlAlchemySubjectRepository(db_manager))
     except (OSError, SQLAlchemyError) as error:
         if db_manager is not None:
             db_manager.close()
@@ -23,9 +28,9 @@ def main() -> int:
         )
         return 1
 
-    window = MainWindow()
-    window.show()
     try:
+        window = MainWindow(subject_service)
+        window.show()
         return app.exec()
     finally:
         if db_manager is not None:

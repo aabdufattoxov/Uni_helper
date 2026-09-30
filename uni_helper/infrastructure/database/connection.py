@@ -35,7 +35,9 @@ class DatabaseManager:
 
     def init_db(self) -> None:
         """Creates all tables."""
-        Base.metadata.create_all(bind=self.engine)
+        from uni_helper.infrastructure.database.models import SubjectRecord
+
+        SubjectRecord.metadata.create_all(bind=self.engine)
 
     def close(self) -> None:
         """Dispose of the engine's pooled database connections."""

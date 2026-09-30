@@ -15,9 +15,16 @@
 
 ## Current Modules
 - Module 1: Core & Dashboard (Implemented)
-- Module 2: Subjects & Materials (Pending)
+- Module 2: Subjects & Materials (Subject management in progress; Materials pending)
 - Module 3: AI Learning (Pending)
 - Module 4: Assessment & Progress (Pending)
+
+### Module 2: Subject management
+
+The current Module 2 increment supports creating, listing, editing, and deleting
+subjects. Each subject has a required name and an optional description. Subject
+records are stored in the per-user SQLite database. Material management is not
+implemented yet.
 
 ## Basic Development Setup
 
