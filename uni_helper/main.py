@@ -1,25 +1,40 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
+from sqlalchemy.exc import SQLAlchemyError
 
+from uni_helper.application.subject_service import SubjectService
 from uni_helper.infrastructure.database.connection import DatabaseManager
+from uni_helper.infrastructure.database.subject_repository import (
+    SqlAlchemySubjectRepository,
+)
 from uni_helper.presentation.main_window import MainWindow
 
-def main():
+
+def main() -> int:
     app = QApplication(sys.argv)
-    
+
+    db_manager = None
     try:
-        # Initialize infrastructure
         db_manager = DatabaseManager()
         db_manager.init_db()
-    except Exception as e:
-        QMessageBox.critical(None, "Startup Error", f"Failed to initialize database:\n{e}")
-        sys.exit(1)
-    
-    # We could inject dependencies into the main window here
-    window = MainWindow()
-    window.show()
-    
-    sys.exit(app.exec())
+        subject_service = SubjectService(SqlAlchemySubjectRepository(db_manager))
+    except (OSError, SQLAlchemyError) as error:
+        if db_manager is not None:
+            db_manager.close()
+        QMessageBox.critical(
+            None,
+            "Startup Error",
+            f"Uni Helper could not initialize its database: {error}",
+        )
+        return 1
+
+    try:
+        window = MainWindow(subject_service)
+        window.show()
+        return app.exec()
+    finally:
+        if db_manager is not None:
+            db_manager.close()
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
